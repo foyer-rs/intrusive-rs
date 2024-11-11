@@ -168,6 +168,15 @@ macro_rules! intrusive_adapter {
         $(#[$attr:meta])* $vis:vis $name:ident ($($args:tt),*)
         = $pointer:ty: $value:path { $($fields:expr)+ => $link:ty } $($where_:tt)*
     ) => {
+        intrusive_adapter!(@impl
+            $(#[$attr])* $vis $name ($($args),*)
+            = $pointer: $value { ?offset = $crate::offset_of!($value, $($fields)*) => $link } $($where_)*
+        );
+    };
+    (@impl
+        $(#[$attr:meta])* $vis:vis $name:ident ($($args:tt),*)
+        = $pointer:ty: $value:path { ?offset = $offset:expr => $link:ty } $($where_:tt)*
+    ) => {
         #[allow(explicit_outlives_requirements)]
         $(#[$attr])*
         $vis struct $name<$($args),*> $($where_)* {
@@ -207,13 +216,13 @@ macro_rules! intrusive_adapter {
 
             #[inline]
             unsafe fn get_value(&self, link: <Self::LinkOps as $crate::LinkOps>::LinkPtr) -> *const <Self::PointerOps as $crate::PointerOps>::Value {
-                $crate::container_of!(link.as_ptr(), $value, $($fields)+)
+                (link.as_ptr() as *const _ as *const u8).sub($offset) as *const $value
             }
             #[inline]
             unsafe fn get_link(&self, value: *const <Self::PointerOps as $crate::PointerOps>::Value) -> <Self::LinkOps as $crate::LinkOps>::LinkPtr {
                 // We need to do this instead of just accessing the field directly
                 // to strictly follow the stack borrow rules.
-                let ptr = (value as *const u8).add($crate::offset_of!($value, $($fields)+));
+                let ptr = (value as *const u8).add($offset);
                 core::ptr::NonNull::new_unchecked(ptr as *mut _)
             }
             #[inline]
@@ -286,5 +295,10 @@ mod tests {
     intrusive_adapter! {
         /// Test doc comment
         WrapperAdapter1 = Rc<Wrapper>: Wrapper { obj.link => LinkedListLink }
+    }
+
+    intrusive_adapter! {
+        /// Test doc comment
+        WrapperAdapter2 = Rc<Wrapper>: Wrapper { ?offset = crate::offset_of!(Wrapper, obj) + crate::offset_of!(Obj, link) => LinkedListLink }
     }
 }
