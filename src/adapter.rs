@@ -277,6 +277,7 @@ macro_rules! intrusive_adapter {
 #[cfg(test)]
 mod tests {
     use crate::LinkedListLink;
+    use core::cell::UnsafeCell;
     use std::rc::Rc;
 
     struct Obj {
@@ -285,6 +286,10 @@ mod tests {
 
     struct Wrapper {
         obj: Obj,
+    }
+
+    struct IndirectWrapper {
+        cell: UnsafeCell<Obj>,
     }
 
     intrusive_adapter! {
@@ -299,6 +304,6 @@ mod tests {
 
     intrusive_adapter! {
         /// Test doc comment
-        WrapperAdapter2 = Rc<Wrapper>: Wrapper { ?offset = crate::offset_of!(Wrapper, obj) + crate::offset_of!(Obj, link) => LinkedListLink }
+        IndirectWrapperAdapter1 = Rc<Wrapper>: Wrapper { ?offset = crate::offset_of!(IndirectWrapper, cell) + crate::offset_of!(Obj, link) => LinkedListLink }
     }
 }
