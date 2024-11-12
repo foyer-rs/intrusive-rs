@@ -1267,6 +1267,19 @@ where
         }
     }
 
+    /// Remove an element from the pointer to it.
+    ///
+    /// # Safety
+    ///
+    /// `ptr` must be a pointer to an object that is part of this list.
+    #[inline]
+    pub unsafe fn remove_from_ptr(
+        &mut self,
+        ptr: *const <A::PointerOps as PointerOps>::Value,
+    ) -> <A::PointerOps as PointerOps>::Pointer {
+        self.cursor_mut_from_ptr(ptr).remove().unwrap()
+    }
+
     /// Returns a `Cursor` pointing to the first element of the list. If the
     /// list is empty then a null cursor is returned.
     #[inline]
