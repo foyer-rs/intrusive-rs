@@ -21,6 +21,7 @@
 //! # Example
 //!
 //! ```
+//! # use foyer_intrusive_collections as intrusive_collections;
 //! use intrusive_collections::intrusive_adapter;
 //! use intrusive_collections::{LinkedList, LinkedListLink};
 //! use std::cell::Cell;
@@ -89,6 +90,7 @@
 //! keep all elements in the tree in ascending order.
 //!
 //! ```
+//! # use foyer_intrusive_collections as intrusive_collections;
 //! use intrusive_collections::intrusive_adapter;
 //! use intrusive_collections::{SinglyLinkedListLink, SinglyLinkedList};
 //! use intrusive_collections::{LinkedListLink, LinkedList};
@@ -150,6 +152,7 @@
 //! function which removes all values within a given range from a `RBTree`:
 //!
 //! ```
+//! # use foyer_intrusive_collections as intrusive_collections;
 //! use intrusive_collections::intrusive_adapter;
 //! use intrusive_collections::{RBTreeLink, RBTree, KeyAdapter, Bound};
 //!
@@ -186,6 +189,7 @@
 //! intrusive collection will outlive the collection itself.
 //!
 //! ```
+//! # use foyer_intrusive_collections as intrusive_collections;
 //! use intrusive_collections::intrusive_adapter;
 //! use intrusive_collections::{LinkedListLink, LinkedList};
 //! use typed_arena::Arena;

@@ -19,6 +19,7 @@ use crate::pointer_ops::PointerOps;
 /// # Examples
 ///
 /// ```
+/// # use foyer_intrusive_collections as intrusive_collections;
 /// use intrusive_collections::intrusive_adapter;
 /// use intrusive_collections::{RBTreeLink, KeyAdapter};
 ///
