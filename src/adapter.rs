@@ -83,6 +83,7 @@ pub unsafe trait Adapter {
 /// # Examples
 ///
 /// ```
+/// # use foyer_intrusive_collections as intrusive_collections;
 /// use intrusive_collections::container_of;
 ///
 /// struct S { x: u32, y: u32 };
@@ -143,6 +144,7 @@ macro_rules! container_of {
 /// # Examples
 ///
 /// ```
+/// # use foyer_intrusive_collections as intrusive_collections;
 /// use intrusive_collections::{LinkedListLink, RBTreeLink};
 /// use intrusive_collections::intrusive_adapter;
 ///
