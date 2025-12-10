@@ -7,6 +7,7 @@
 
 use core::hint;
 
+#[allow(unused)]
 /// An extension trait on `Option`.
 pub trait UncheckedOptionExt<T> {
     /// Returns the contained value.

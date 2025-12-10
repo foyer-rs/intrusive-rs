@@ -279,15 +279,11 @@ unsafe impl XorLinkedListOps for LinkOps {
 #[repr(align(2))]
 pub struct AtomicLink {
     next: AtomicPtr<AtomicLink>,
-    prev: Cell<Option<NonNull<AtomicLink>>>,
+    prev: AtomicPtr<AtomicLink>,
 }
 
 // Use a special value to indicate an unlinked node
 const ATOMIC_UNLINKED_MARKER_PTR: *mut AtomicLink = 1 as *mut AtomicLink;
-
-// Use a special value to indicate an unlinked node
-const ATOMIC_UNLINKED_MARKER: Option<NonNull<AtomicLink>> =
-    unsafe { Some(NonNull::new_unchecked(ATOMIC_UNLINKED_MARKER_PTR)) };
 
 impl AtomicLink {
     /// Creates a new `AtomicLink`.
@@ -295,7 +291,7 @@ impl AtomicLink {
     pub const fn new() -> AtomicLink {
         Self {
             next: AtomicPtr::new(ATOMIC_UNLINKED_MARKER_PTR),
-            prev: Cell::new(ATOMIC_UNLINKED_MARKER),
+            prev: AtomicPtr::new(ATOMIC_UNLINKED_MARKER_PTR),
         }
     }
 
@@ -328,6 +324,17 @@ impl AtomicLink {
     unsafe fn next_exclusive(&self) -> &Cell<Option<NonNull<AtomicLink>>> {
         // This is safe because currently AtomicPtr<AtomicLink> has the same representation Cell<Option<NonNull<AtomicLink>>>.
         core::mem::transmute(&self.next)
+    }
+
+    /// Access the `prev` pointer in an exclusive context.
+    ///
+    /// # Safety
+    ///
+    /// This can only be called after `acquire_link` has been succesfully called.
+    #[inline]
+    unsafe fn prev_exclusive(&self) -> &Cell<Option<NonNull<AtomicLink>>> {
+        // This is safe because currently AtomicPtr<AtomicLink> has the same representation Cell<Option<NonNull<AtomicLink>>>.
+        core::mem::transmute(&self.prev)
     }
 }
 
@@ -412,7 +419,7 @@ unsafe impl LinkedListOps for AtomicLinkOps {
 
     #[inline]
     unsafe fn prev(&self, ptr: Self::LinkPtr) -> Option<Self::LinkPtr> {
-        ptr.as_ref().prev.get()
+        ptr.as_ref().prev_exclusive().get()
     }
 
     #[inline]
@@ -422,7 +429,7 @@ unsafe impl LinkedListOps for AtomicLinkOps {
 
     #[inline]
     unsafe fn set_prev(&mut self, ptr: Self::LinkPtr, prev: Option<Self::LinkPtr>) {
-        ptr.as_ref().prev.set(prev);
+        ptr.as_ref().prev_exclusive().set(prev);
     }
 }
 
